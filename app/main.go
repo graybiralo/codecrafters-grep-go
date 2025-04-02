@@ -41,8 +41,12 @@ func main() {
 }
 
 func matchLine(line []byte, pattern string) (bool, error) {
-	if pattern == `\d` { // Special case for digit matching
+	switch pattern {
+	case `\d`: // Matches any digit
 		re := regexp.MustCompile(`\d`)
+		return re.Match(line), nil
+	case `\w`: // Matches any alphanumeric character or underscore
+		re := regexp.MustCompile(`[a-zA-Z0-9_]`)
 		return re.Match(line), nil
 	}
 
