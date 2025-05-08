@@ -1,38 +1,29 @@
-[![progress-banner](https://backend.codecrafters.io/progress/grep/9154477f-e551-4d06-b324-f2e7e1dd4acd)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# MyGrep - A Regex Matching Tool in Go
 
-This is a starting point for Go solutions to the
-["Build Your Own grep" Challenge](https://app.codecrafters.io/courses/grep/overview).
+`mygrep` is a simplified, custom-built implementation of the Unix `grep` utility, written in Go. It supports regular expression matching with various features including character classes, anchors, quantifiers, and backreferences.
 
-[Regular expressions](https://en.wikipedia.org/wiki/Regular_expression)
-(Regexes, for short) are patterns used to match character combinations in
-strings. [`grep`](https://en.wikipedia.org/wiki/Grep) is a CLI tool for
-searching using Regexes.
+## Features
 
-In this challenge you'll build your own implementation of `grep`. Along the way
-we'll learn about Regex syntax, how parsers/lexers work, and how regular
-expressions are evaluated.
+- Basic string matching with regular expressions
+- Character classes: `\w`, `\d`, and custom sets like `[abc]` or `[^abc]`
+- Anchors: `^` (start of line), `$` (end of line)
+- Quantifiers: `+` (one or more)
+- Capturing groups and backreferences:
+  - Single backreference: `(cat) and \1`
+  - Multiple backreferences: `(\d+) (\w+) squares and \1 \2 circles`
+  - Nested backreferences: `('(cat) and \2') is the same as \1`
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+##  Usage
 
-# Passing the first stage
+```bash
+echo -n "<input>" | ./your_program.sh -E "<pattern>"
 
-The entry point for your `grep` implementation is in `app/main.go`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+## Example
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
-```
+echo -n "apple" | ./your_program.sh -E "[^abc]"       # Match found!
+echo -n "1 apple" | ./your_program.sh -E "\d apple"   # Match found!
+echo -n "cat and cat" | ./your_program.sh -E "(cat) and \1"  # Match found!
+echo -n "3 red squares and 3 red circles" | ./your_program.sh -E "(\d+) (\w+) squares and \1 \2 circles"  # Match found!
 
-Time to move on to the next stage!
 
-# Stage 2 & beyond
 
-Note: This section is for stages 2 and beyond.
-
-1. Ensure you have `go (1.24)` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.go`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
