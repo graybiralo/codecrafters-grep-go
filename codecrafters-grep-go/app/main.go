@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"regexp"
-	"strconv"
 )
 
 func main() {
@@ -37,55 +36,44 @@ func main() {
 }
 
 func matchLine(line []byte, pattern string) (bool, error) {
-	// Find all capturing group references like \1, \2, etc.
+	// Regex to find backreferences like \1, \2
 	backrefRegex := regexp.MustCompile(`\\(\d+)`)
-	backrefs := backrefRegex.FindAllStringSubmatch(pattern, -1)
 
-	// If there are no backreferences, use normal regex
-	if len(backrefs) == 0 {
-		re, err := regexp.Compile(pattern)
-		if err != nil {
-			return false, err
-		}
-		return re.Match(line), nil
-	}
+	// Extract all backreference numbers
+	backrefMatches := backrefRegex.FindAllStringSubmatch(pattern, -1)
 
-	// Replace \1, \2... with new capturing groups to match manually
-	// Also escape literal backslashes
+	// Replace all backreferences like \1 with (.*)
 	capturePattern := backrefRegex.ReplaceAllString(pattern, "(.*)")
 
+	// new pattern
 	re, err := regexp.Compile(capturePattern)
 	if err != nil {
 		return false, err
 	}
 
+	// Match against the input line
 	matches := re.FindSubmatch(line)
 	if matches == nil {
 		return false, nil
 	}
 
-	// Extract backreference positions and compare
-	for _, backref := range backrefs {
-		index := backref[1] // string number like "1", "2"
-		groupNum := atoi(index)
+	// Compare captured groups to backreferences
+	for _, match := range backrefMatches {
+		// match[1] is the digit string (e.g., "1", "2")
+		groupIndex := match[1]
+		var index int
+		fmt.Sscanf(groupIndex, "%d", &index)
 
-		if groupNum >= len(matches) {
-			return false, nil
-		}
+		// index refers to the original backreference group
+		// Example: for \1, check that group 1 == group N (where N is the corresponding (.*))
+		// All (.*) captures go from matches[1] onward
+		ref1 := matches[index]
+		ref2 := matches[len(matches)-len(backrefMatches)+index-1]
 
-		// Compare the earlier group with the backreference location
-		// Group numbers in regex are 1-indexed
-		refValue := matches[groupNum]
-		backrefGroup := matches[len(matches)-1] // last match is the backref we just captured
-		if !bytes.Equal(refValue, backrefGroup) {
+		if !bytes.Equal(ref1, ref2) {
 			return false, nil
 		}
 	}
 
 	return true, nil
-}
-
-func atoi(s string) int {
-	n, _ := strconv.Atoi(s)
-	return n
 }
